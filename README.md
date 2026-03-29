@@ -136,3 +136,48 @@ A: This happens if the Backend doesn't know the Frontend's URL. We use `django-c
 
 **Q: Can I run this on mobile?**
 A: Yes! The CSS is responsive. You can access it via your computer's IP address (e.g. `192.168.1.5:3000`) if your phone is on the same WiFi.
+
+---
+
+## ✨ Features
+
+1.  **Secure Authentication**:
+    *   User Registration & Login.
+    *   JWT-based session management (Access & Refresh Tokens).
+    *   Automatic token refreshing via Axios Interceptors.
+2.  **Expense Management**:
+    *   Create, Read, Update, Delete (CRUD) expenses.
+    *   Categorize expenses (Food, Travel, Bills, etc.).
+3.  **Data Visualization**:
+    *   **Pie Chart**: Breakdown of spending by category.
+    *   **Bar Chart**: Overview of financial data.
+4.  **Optimized UI**:
+    *   Dashboard with summary cards.
+    *   Responsive navigation bar.
+    *   Private Routes (redirects unauthenticated users).
+
+---
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/auth/register/` | Register new user | ❌ |
+| **POST** | `/auth/login/` | Get Access/Refresh Tokens | ❌ |
+| **POST** | `/auth/token/refresh/` | Refresh Access Token | ❌ |
+| **GET** | `/api/expenses/` | List all expenses | ✅ |
+| **POST** | `/api/expenses/` | Create new expense | ✅ |
+| **GET** | `/api/categories/` | List all categories | ✅ |
+
+---
+
+## 👨‍💻 Interview Questions & Answers
+
+**Q: Why did you use JWT instead of Session Auth?**
+*   **A:** JWT is stateless and scalable. It allows the frontend (React) and backend (Django) to be completely separate domains, making it easier to deploy them independently or even build a mobile app later using the same API.
+
+**Q: How do you handle security?**
+*   **A:** Passwords are hashed by Django. API endpoints are protected using DRF permissions (`IsAuthenticated`). CORS is configured to only allow requests from trusted origins.
+
+**Q: How does the chart work?**
+*   **A:** I used `reduce()` in JavaScript to aggregate the flat list of expenses by category, effectively grouping and summing them up on the client side before passing the data to `Chart.js`.
