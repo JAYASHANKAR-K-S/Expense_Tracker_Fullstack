@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 import { FiFilter, FiTrash2, FiEdit2, FiSearch, FiDownload, FiTruck, FiCoffee, FiShoppingBag, FiHome } from 'react-icons/fi';
 
 const Transactions = () => {
+    const navigate = useNavigate();
     const [transactions, setTransactions] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -61,6 +63,38 @@ const Transactions = () => {
         t.category_name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Export to CSV
+    const handleExport = () => {
+        if (!filteredTransactions || filteredTransactions.length === 0) {
+            alert("No transactions to export.");
+            return;
+        }
+
+        const headers = ['Date', 'Category', 'Description', 'Method', 'Amount'];
+        const csvRows = [headers.join(',')];
+
+        for (const t of filteredTransactions) {
+            const date = t.date || '';
+            const category = `"${t.category_name || ''}"`;
+            const description = `"${(t.description || '').replace(/"/g, '""')}"`;
+            const method = t.payment_method || 'Cash';
+            const amount = t.amount || 0;
+            
+            csvRows.push([date, category, description, method, amount].join(','));
+        }
+
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="dashboard-container">
             <div className="card">
@@ -88,7 +122,7 @@ const Transactions = () => {
                         <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <FiFilter /> Filter
                         </button>
-                        <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button className="btn-secondary" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <FiDownload /> Export
                         </button>
                     </div>
@@ -138,21 +172,23 @@ const Transactions = () => {
                                             <span style={{
                                                 padding: '4px 12px',
                                                 borderRadius: '20px',
-                                                background: '#F8FAFC',
-                                                border: '1px solid #E2E8F0',
+                                                background: 'var(--glass-surface)',
+                                                border: '1px solid var(--glass-border)',
+                                                color: 'var(--text-main)',
                                                 fontSize: '0.85rem',
                                                 fontWeight: '500'
                                             }}>
                                                 {t.payment_method || 'Cash'}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '16px', fontWeight: '600', color: '#0F172A' }}>
+                                        <td style={{ padding: '16px', fontWeight: '600', color: 'var(--text-main)' }}>
                                             {formatRupee(t.amount)}
                                         </td>
                                         <td style={{ padding: '16px', textAlign: 'right' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                                                 <button
                                                     style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}
+                                                    onClick={() => navigate('/add-expense', { state: { expense: t } })}
                                                     title="Edit"
                                                 >
                                                     <FiEdit2 size={16} />

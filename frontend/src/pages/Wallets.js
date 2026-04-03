@@ -159,7 +159,7 @@ const Wallets = () => {
                     }}>
                         {/* Modal Header */}
                         <div style={{ padding: '24px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0F172A' }}>Add New Wallet</h3>
+                            <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-main)' }}>Add New Wallet</h3>
                             <button
                                 onClick={() => setIsModalOpen(false)}
                                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../api/axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import {
     FiUser,
@@ -27,15 +27,18 @@ const DEFAULT_CATEGORIES = [
 
 const AddExpense = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const editingExpense = location.state?.expense;
+
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState('UPI'); // Cash, UPI, Card
+    const [paymentMethod, setPaymentMethod] = useState(editingExpense?.payment_method || 'UPI');
 
     const initialFormState = {
-        amount: '',
-        category: '',
-        description: '',
-        date: new Date().toISOString().split('T')[0]
+        amount: editingExpense?.amount || '',
+        category: editingExpense?.category_name || '',
+        description: editingExpense?.description || '',
+        date: editingExpense?.date || new Date().toISOString().split('T')[0]
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -91,7 +94,11 @@ const AddExpense = () => {
                 payment_method: paymentMethod
             };
 
-            await axiosInstance.post('/api/expenses/', payload);
+            if (editingExpense) {
+                await axiosInstance.put(`/api/expenses/${editingExpense.id}/`, payload);
+            } else {
+                await axiosInstance.post('/api/expenses/', payload);
+            }
 
             // Show Success UI
             setShowToast(true);
@@ -119,7 +126,7 @@ const AddExpense = () => {
                         <span style={{ width: '40px', height: '40px', background: 'var(--bg-deep)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
                             <FiLayers />
                         </span>
-                        New Transaction
+                        {editingExpense ? 'Edit Transaction' : 'New Transaction'}
                     </div>
 
                     <form className="form-grid" onSubmit={handleSubmit}>
@@ -227,7 +234,7 @@ const AddExpense = () => {
                                 cursor: (!isFormValid || isLoading) ? 'not-allowed' : 'pointer'
                             }}
                         >
-                            {isLoading ? 'Saving...' : 'Save Expense'}
+                            {isLoading ? 'Saving...' : (editingExpense ? 'Update Expense' : 'Save Expense')}
                         </button>
                     </form>
                 </div>
